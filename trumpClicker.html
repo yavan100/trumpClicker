@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="UTF-8">
+  <meta name="description" content="Trump clicker">
+  <meta name="keywords" content="Trump, idle, game, clicker">
+  <meta name="author" content="Anon Nymous">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    body{background-color:black;}
+    p{padding:2px;margin:2px;}
+    .bar{height:80px;width:0%;background-color:blue;position:relative;top:10px;left:10px;}
+    .barContainer{height:100px;width:100%;background-color:black;margin:0px;border:0px;padding:0px;}    
+    .bonusMessage{position:fixed; top:300px; left:35%; font-size:30px; color:rgb(0, 76, 255); visibility:hidden;}
+    .businessBox{width:100%;border:solid black 1px; background-color:blue;font-size:22px;padding:0px;margin:0px;}
+    .buttonBox{position:fixed;top:160px;right:20px;}
+    .flexContainer{display:flex;margin:0px;border:0px;padding:0px;}
+    .lawsuits{width:25%;height:auto;background-color:red;padding:0px;margin:0px;border:0px;}
+    .moneyP{padding:0px;border:0px;margin:10px;}
+    .numbers{height:250px;width:100%;background-color:gold;font-size:32px;color:goldenRod;font-family:"brush script MT";margin:0px;border:0px;padding:0px;}
+    .pictureFrame{width:50%;height:500px;background-color:black;padding:0px;margin:0px;border:0px;}
+    .suitBox{width:100%;border:solid black 1px;background-color:red;font-size:22px;padding:0px;margin:0px;}
+    .suitBoxB{width:100%;border:solid black 1px;background-color:darkred;font-size:22px;padding:0px;margin:0px;}
+    .svgContainer{position:fixed; top:50px; left:50%; visibility:hidden;}
+    .trumpScams{width:25%;height:auto;background-color:blue;padding:0px;margin:0px;border:0px;}
+  </style>
+  </head>
+  <body>
+    <div class="svgContainer" id="svgContainer">
+    <svg height="365" width="300">
+      <polygon points="50,40 70,40 95,90 65,300 55,300 25,90" style="fill:rgb(243, 154, 30)">
+      </polygon>
+      <circle r="25" cx="60" cy="340" style="fill:rgb(243, 154, 30)"/>
+    </svg>
+    </div>
+    <div class="bonusMessage" id="bonusMessageContainer">
+      <p id="bonusMessage"></p>
+    </div>
+    <div id="main"></div>
+    <script type="text/babel">
+      function Achievements(){{return (<div className="numbers">
+      <ClickAchieve/>
+      <MoneyAchieve/>
+      <LawyerAchieve/>
+      </div>)}}
+      function Business(business){
+        if (business[3]==true){
+          return (<div className="businessBox">
+            <p>{business[0]}</p>
+            <p>$$ per second: {business[2]}.00$$$</p>
+            </div>)
+        }
+        else{return(<></>)}
+      }
+      function ButtonBox(){
+        return (<div className="buttonBox"><button onClick={()=>changeTo(1)}>Main</button><button onClick={()=>changeTo(2)}>Stats</button><button onClick={()=>changeTo(3)}>Achievements</button></div>)
+      }
+      function ClickAchieve(){
+        if (checkClickBonus()!=0)
+        {return (<p>Over {achievements[0][checkClickBonus()]} Clicks! -Click Bonus Multiplier: {checkClickBonus()+1}</p>)}
+        else{return (<></>)}
+      }
+      function LawyerAchieve(){
+        let total=0;
+        for (let ii=1;ii<18;ii++){
+          total+=achievements[2][ii];
+        }
+        if (total==0){return(<></>)}else{
+          return (<p>Total lawyer bonuses: {total}</p>)
+        }}
+      function Main(){
+        return(
+          <>
+          <PowerBar/>
+          <Money/>
+          <ButtonBox/>
+          <div className="flexContainer">
+          <Lawsuits/>
+          <Image/>
+          <Scams/>
+          </div>
+          </>
+        )
+      }
+      function MoneyAchieve(){
+        if (achievements[1][11]!=0)
+        {return(<p>You earned over {(achievements[1][achievements[1][11]]/100).toFixed(2)}$$$! Bonus multiplier: {(achievements[1][11]+1)}</p>)}
+        else{return(<></>)}
+      }
+      const container = document.getElementById('main');
+      const root = ReactDOM.createRoot(container);
+      root.render(<Main />);
+    // Section I: React functions defined
+    function PowerBar(){
+        return (<>
+        <div className="barContainer">
+        <div className="bar" id="innerBar">    
+            </div></div>
+        </>)
+    }
+    function Money(){
+      if (display==1){return(<><div className="numbers">
+      <p className="moneyP">Total Money: $$$${(money/100).toFixed(2)}$$$$</p>
+      <p className="moneyP">Per click: $$$${((increment/100)*(checkClickBonus()+1)*(achievements[1][11]+1)).toFixed(2)}$$$$</p>
+      <p className="moneyP">Per Second: $$$${(revenue()).toFixed(2)}$$$$</p>
+      <p className="moneyP">Trump fortune: $$$${trumpFortune.toFixed(2)}$$$$</p>
+      <p className="moneyP">Trump ventures revenue: $$$${ventureRevenue().toFixed(2)}$$$$</p>
+      </div>
+      </>)}
+    if (display==2){return (<Stats/>)}
+    if (display==3){return (<Achievements/>)}
+    }
+    function Image(){return<><img src="images/trump1.png" id="trumpPic" className="pictureFrame" onClick={trumpClick}/></>}
+    function Lawsuits(){return<><div className="lawsuits"><div>{lawsuits.map(Lawsuit)}</div></div></>}
+    function Lawsuit(suit){
+      let cost=suit[1]*1.12**suit[3];
+      if (money>cost){suit[4]=true;return(<div className="suitBox" onClick={()=>augment(suit)}><p>{suit[0]}</p><p>Cost: {(cost/100).toFixed(2)} Lawyers: {suit[3]} Total Revenue:${((suit[2]*suit[3]/100)*(achievements[1][11]+1)*(achievements[2][lawsuits.indexOf(suit)+1]+1)).toFixed(2)}</p></div>)}
+      if (money<cost&&suit[4]==true){return(<div className="suitBoxB" onClick={()=>augment(suit)}><p>{suit[0]}</p><p>Cost: {(cost/100).toFixed(2)} Lawyers: {suit[3]} Total Revenue:${((suit[2]*suit[3]/100)*(achievements[1][11]+1)*(achievements[2][lawsuits.indexOf(suit)+1]+1)).toFixed(2)}</p></div>)}else{return(<></>)}
+    }
+    function Scams(){return<><div className="trumpScams">{businesses.map(Business)}</div></>}
+    function Stats(){return (<><div className="numbers">
+    <p>Total money taken from Donald Trump: $$${(totalObtained/100).toFixed(2)}$$$</p>
+    <p>Total clicks: {(totalClicks)}</p>
+    <p>Money obtained by clicking: $$${moneyObtainedByClicking.toFixed(2)}$$$</p>
+    <p>Money earned through active lawsuits: $$${((totalObtained/100-moneyObtainedByClicking)).toFixed(2)}$$$</p>
+    <p>Total Lawyers: {lawyers()}</p>
+    </div>
+    </>)}
+    //Section  II: Variables initiated
+    let money=0;let increment=1;let trumpFortune=2600000000;let clicks=0;
+    let totalObtained=0;let now=new Date();let aa={};
+    let totalClicks=0;let display=1;let moneyObtainedByClicking=0;
+    let clickDisabled=false;
+    //For next two arrays:["name",cost,payPerUnit,level=0 initially,unlocked] 
+    //                    ["name",unlockLevel,money/second,unlocked]
+    let lawsuits=[["Trump University",500,1,0,false],
+                  ["Niece cheated out of inheritance",2500,3,0,false],
+                  ["Trump family scam charity foundation",5000,5,0,false],
+                  ["Michigan Voting Acts Rights lawsuit",7500,8,0,false],
+                  ["ACN Pyramid Scheme lawsuit",10000,10,0,false],
+                  ["Dominion Defamation lawsuit",30000,25,0,false],
+                  ["Cohen Retaliatory Imprisonment lawsuit",100000,80,0,false],
+                  ["D.C. Hotel lease investigation",200000,200,0,false],
+                  ["Trump Spac investigation",600000,500,0,false],
+                  ["Emoluments investigation",1500000,1200,0,false],
+                  ["NY State valuations and tax fraud case",3000000,2500,0,false],
+                  ["E Jean Carroll civil rape and defamation case",5000000,3500,0,false],
+                  ["Hush money payment case",8000000,5000,0,false],
+                  ["Georgia Election Interference",10000000,6500,0,false],
+                  ["Nevada Election Interference",12500000,8000,0,false],
+                  ["Fake electors scheme investigation",20000000,12000,0,false],
+                  ["Theft of classified info case",50000000,25000,0,false],
+                  ["Attempt to overturn 2020 election case",100000000,120000,0,false]   
+    ]
+    let achievements=[
+      ["clicks",500,1000,2500,5000,10000,25000,0],
+      ["money earned",2500,10000,100000,250000,1000000,20000000,50000000,100000000,1000000000,10000000000,0],
+      ["individual suits",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  
+    ]
+    //["Name",appearsAt(amountTaken),sumPerSecond,unlocked]
+    let businesses=[
+      ["Trump Steak",5000,85,false],
+      ["Trump Wine",20000,350,false],
+      ["Trump Perfume",200000,1000,false],
+      ["Trump NFT Cards",1500000,5000,false],
+      ["Trump Shoes",5000000,15000,false],
+      ["Invermetcin",15000000,50000,false],
+      ["Dwac",30000000,150000,false],
+      ["Putting DIL in charge of GOP - Jackpot!!",500000000,200000,false],
+      ["Trump Bibles - Trump fucking Bibles!",1000000000,1000000,false]
+    ];
+    let engine=setInterval(calculate,1000);
+    document.getElementById("bonusMessage").innerHTML=message();
+    alert("Send Donald Trump to prison by suing him out of his fortune. Then, the system can let him go to jail like the common criminal that he is. Click on his face to begin.");
+    //Section III: standard functions defined
+    function augment(suit){
+      let cost=Math.floor(suit[1]*1.12**suit[3]);
+      if (money<cost){return false};
+      money-=cost;suit[3]++;
+      checkSuitBonus(suit);
+      root.render(<Main/>);
+    }
+    function calculate(){
+      let rightNow=new Date();
+      let elapsed=(rightNow-now)/1000;
+      now=rightNow;
+      trumpFortune-=revenue()*elapsed;
+      money+=(revenue()*100)*elapsed;
+      totalObtained+=(revenue()*100)*elapsed;
+      if (trumpFortune<=0){winScreen()}
+      checkTotalBonus();
+      checkVentures();
+      root.render(<Main/>)
+    }
+    function changeTo(number){display=number;root.render(<Main/>)}
+    function checkClickBonus(){
+    if (achievements[0][7]==6){return 0}
+    let newAchievement=0;let positive=false;
+    if (totalClicks>=achievements[0][1]){
+    newAchievement++;}
+    if (totalClicks>achievements[0][2]){
+    newAchievement++;}
+    if (totalClicks>achievements[0][3]){
+    newAchievement++;}
+    if (totalClicks>achievements[0][4]){
+    newAchievement++;}
+    if (totalClicks>achievements[0][5]){
+    newAchievement++;}
+    if (totalClicks>achievements[0][6]){
+    newAchievement++;}
+    if (newAchievement>achievements[0][7]){positive=true;}
+    achievements[0][7]=newAchievement;
+    if (positive==true){newBonus("click",achievements[0][7])};
+    return newAchievement;
+    }
+    function checkSuitBonus(suit){
+      let increments=[5,10,25,50,100];
+      let count=0;
+      let presentBonus=achievements[2][lawsuits.indexOf(suit)+1]
+      for (let ii=0;ii<increments.length;ii++){
+      if (suit[3]>=increments[ii]){count++;}
+      }
+      achievements[2][lawsuits.indexOf(suit)+1]=count;
+      if (presentBonus<count){newBonus("lawyers",suit)}
+    }
+    function checkTotalBonus(){
+      let bonus=0;
+      let previousBonus=achievements[1][11];
+      for (let ii=1;ii<=10;ii++){
+        if (totalObtained>=achievements[1][ii]){bonus++}
+      }
+      achievements[1][11]=bonus;
+      if (achievements[1][11]>previousBonus){newBonus("money",achievements[1][11])}
+    }
+    function checkVentures(){
+      let initiated=false;
+      if (businesses[0][3]==true){initiated=true}
+      for (let ii=0;ii<businesses.length;ii++){
+        if (totalObtained>=businesses[ii][1]*100){
+          businesses[ii][3]=true;
+        }
+      }
+      if (businesses[0][3]==true&&initiated==false){newBonus("venture",0)}
+      for (let ii=0;ii<businesses.length;ii++){
+        if (businesses[ii][3]==true){
+          trumpFortune+=businesses[ii][2];
+        }
+      }
+    }
+    function lawyers(){
+      let total=0;
+      for (let ii=0;ii<lawsuits.length;ii++){total+=lawsuits[ii][3]};
+      return total;
+    }
+    function message(bonusType,level){
+      let message="";
+      if (bonusType=="click"){message="over "+achievements[0][level]+" clicks!"}
+      if (bonusType=="money"){message="over "+(achievements[1][achievements[1][11]]/100).toFixed(0)+" $$$ sued from Donald J. Trump!"}
+      if (bonusType=="lawyers"){
+        let increments=[5,10,25,50,100];
+        message=level[3]+" lawyers on the "+level[0]+" case!!!"
+      }
+      if (bonusType=="venture"){message="Donald Trump will now defend his fortunes with ventures!!"}
+      return message;
+    }
+    function newBonus(type, suit){
+      document.getElementById("bonusMessage").innerHTML=message(type,suit)
+      document.getElementById("bonusMessage").style.visibility="visible";
+      document.getElementById("svgContainer").style.visibility="visible";
+      setTimeout(hide,5000);
+      function hide(){
+        document.getElementById("bonusMessage").style.visibility="hidden";
+      document.getElementById("svgContainer").style.visibility="hidden";
+      }
+    }
+    function revenue(){
+      let total=0;
+      for (let ii=0;ii<lawsuits.length;ii++){
+        total+=(lawsuits[ii][2]*lawsuits[ii][3]*(achievements[1][11]+1)*(achievements[2][ii+1]+1))/100}
+      return total
+    }
+    function trumpClick(){
+      if (clickDisabled==true){return false};
+      document.getElementById("trumpPic").src="images/trump2.png"
+      aa=setTimeout(restore,2000);
+      money+=increment*(checkClickBonus()+1)*(achievements[1][11]+1);totalObtained+=(increment)*(checkClickBonus()+1)*(achievements[1][11]+1);trumpFortune-=(increment/100)*(checkClickBonus()+1)*(achievements[1][11]+1);clicks++;totalClicks++;
+      moneyObtainedByClicking+=(increment/100)*(checkClickBonus()+1)*(achievements[1][11]+1);
+      if (trumpFortune<=0){winScreen()}
+      checkTotalBonus();
+      if (clicks==100){increase();clicks=0;}
+      let bar=clicks+"%";
+      document.getElementById("innerBar").style.width=(bar);
+      root.render(<Main/>);
+      function restore(){document.getElementById("trumpPic").src="images/trump1.png"}
+    }
+    function increase(){increment++}
+    function ventureRevenue(){
+      let total=0;
+      for (let ii=0;ii<businesses.length;ii++){
+        if (businesses[ii][3]==true){total+=businesses[ii][2]}
+      }
+      return total;
+    }
+    function winScreen(){
+      let animationImages=["images/trump3a.png","images/trump3b.png","images/trump3c.png","images/trump3d.png","images/trump3e.png","xxx"];
+      let index=0;
+      clickDisabled=true;
+      clearInterval(engine);
+      clearTimeout(aa);
+      let finalAnimation=setInterval(animate,1000);
+      function animate(){
+        document.getElementById("trumpPic").src=animationImages[index];
+        index++;
+        if (animationImages[index]=="xxx"){clearInterval(finalAnimation)}
+      }
+      alert("You did it! Democracy (and America's sanity) are safe! Refresh page to play again.");
+    }
+    </script>
+  </body>
+</html>
